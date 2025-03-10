@@ -13,7 +13,7 @@ struct move make_move(int from_square, int to_square, int promotion_type) {
 	return move;
 }
 
-int parse_move(struct move *move, const char *string) {
+signed char parse_move(struct move *move, const char *string) {
 	/* parse the from square.                                                */
 	move->from_square = parse_square(string);
 
@@ -114,12 +114,12 @@ void do_move(struct position *pos, struct move move) {
 	}
 }
 
-int is_legal(const struct position *pos, struct move move) {
+signed char is_legal(const struct position *pos, struct move move) {
 	struct position copy = *pos;
 	struct move moves[MAX_MOVES];
-	int piece = pos->board[move.from_square];
-	size_t count;
-	size_t index;
+	signed char piece = pos->board[move.from_square];
+	unsigned short count;
+	unsigned short index;
 
 	/* make the move on a copy of the position.                              */
 	do_move(&copy, move);
@@ -128,9 +128,9 @@ int is_legal(const struct position *pos, struct move move) {
 	/* between the from square and the to square. this makes it illegal to   */
 	/* castle through a square that is controlled by the opponent.           */
 	if (TYPE(piece) == KING) {
-		int from_file = FILE(move.from_square);
-		int to_file = FILE(move.to_square);
-		int rank = RELATIVE(RANK_1, pos->side_to_move);
+		signed char from_file = FILE(move.from_square);
+		signed char to_file = FILE(move.to_square);
+		signed char rank = RELATIVE(RANK_1, pos->side_to_move);
 
 		if (from_file == FILE_E && to_file == FILE_G) {
 			copy.board[SQUARE(FILE_E, rank)] = piece;
@@ -146,7 +146,7 @@ int is_legal(const struct position *pos, struct move move) {
 
 	/* return false if any of those moves could capture the king.            */
 	for (index = 0; index < count; index++) {
-		int piece = copy.board[moves[index].to_square];
+		signed char piece = copy.board[moves[index].to_square];
 
 		if (piece == PIECE(pos->side_to_move, KING)) {
 			return 0;

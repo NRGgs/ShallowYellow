@@ -88,7 +88,7 @@ static void uci_position(struct position *pos, char *token, char *store) {
 static void uci_go(const struct position *pos, char *token, char *store) {
 	struct search_info info;
 	struct move move;
-	char buffer[] = { '\0', '\0', '\0', '\0', '\0', '\0' };
+	signed char buffer[] = { '\0', '\0', '\0', '\0', '\0', '\0' };
 
 	info.pos = pos;
 	info.time[WHITE] = 0;

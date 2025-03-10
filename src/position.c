@@ -3,10 +3,10 @@
 #include "types.h"
 
 void print_position(const struct position *pos, FILE *stream) {
-	char castling_rights_buffer[] = { '-', '\0', '\0', '\0', '\0' };
-	char en_passant_square_buffer[] = { '-', '\0', '\0' };
-	char *castling_rights = castling_rights_buffer;
-	char *en_passant_square = en_passant_square_buffer;
+	signed char castling_rights_buffer[] = { '-', '\0', '\0', '\0', '\0' };
+	signed char en_passant_square_buffer[] = { '-', '\0', '\0' };
+	signed char *castling_rights = castling_rights_buffer;
+	signed char *en_passant_square = en_passant_square_buffer;
 	int file;
 	int rank;
 
