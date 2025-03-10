@@ -3,6 +3,16 @@
 
 #include "position.h"
 
+typedef struct e_pst
+{
+	short	*pawn;
+	short	*knight;
+	short	*bishop;
+	short	*rook;
+	short	*queen;
+	short	*king;
+}	t_pst;
+
 /* the evaluation function tries to determine the value of the current       */
 /* position for the current player. the greater the value, the better the    */
 /* position is for the current player. our basic implementation just sums    */
