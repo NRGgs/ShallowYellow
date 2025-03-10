@@ -27,16 +27,16 @@
 /* https://www.chessprogramming.org/Bitboards                                */
 struct position {
 	/* pieces indexed by square. `NO_PIECE` is used for empty squares.       */
-	signed char board[64];
+	int board[64];
 
 	/* color of the current side to move, must be `WHITE` or `BLACK`.        */
-	signed char side_to_move;
+	int side_to_move;
 
 	/* castling rights indexed by piece color.                               */
-	signed char castling_rights[2];
+	int castling_rights[2];
 
 	/* en passant square, may be `NO_SQUARE`.                                */
-	signed char en_passant_square;
+	int en_passant_square;
 };
 
 /* print out information about the position. useful for debugging.           */

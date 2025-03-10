@@ -3,29 +3,29 @@
 
 /* parse a file. valid files are 'a', 'b', 'c', 'd', 'e', 'f', 'g', and 'h'. */
 /* returns the file on success, `NO_FILE` on failure.                        */
-signed char parse_file(signed char c);
+int parse_file(int c);
 
 /* parse a rank. valid ranks are '1', '2', '3', '4', '5', '6', '7', and '8'. */
 /* returns the rank on success, `NO_RANK` on failure.                        */
-signed char parse_rank(signed char c);
+int parse_rank(int c);
 
 /* parse a square. valid squares are a file followed by a rank. trailing     */
 /* characters are ignored. returns the square on success, `NO_SQUARE` on     */
 /* failure.                                                                  */
-signed char parse_square(const char *string);
+int parse_square(const char *string);
 
 /* parse a color. valid colors are 'w' and 'b'. returns the color on         */
 /* success, `NO_COLOR` on failure.                                           */
-signed char parse_color(signed char c);
+int parse_color(int c);
 
 /* parse a type. valid types are 'p', 'n', 'b', 'r', 'q', and 'k'. returns   */
 /* the type on success, `NO_TYPE` on failure.                                */
-signed char parse_type(signed char c);
+int parse_type(int c);
 
 /* parse a piece. valid pieces are 'P', 'p', 'N', 'n', 'B', 'b', 'R', 'r',   */
 /* 'Q', 'q', 'K', and 'k'. uppercase letters are for white pieces, lowercase */
 /* letters are for black pieces. returns the piece on success, `NO_PIECE` on */
 /* failure.                                                                  */
-signed char parse_piece(signed char c);
+int parse_piece(int c);
 
 #endif

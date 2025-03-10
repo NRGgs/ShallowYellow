@@ -4,7 +4,7 @@
 
 #include <limits.h>
 
-struct search_result minimax(const struct position *pos, int depth, short **table) {
+struct search_result minimax(const struct position *pos, int depth, int **table) {
 	struct search_result result;
 
 	result.score = -1000000;
@@ -40,6 +40,6 @@ struct search_result minimax(const struct position *pos, int depth, short **tabl
 	return result;
 }
 
-struct move search(const struct search_info *info, short **table) {
+struct move search(const struct search_info *info, int **table) {
 	return minimax(info->pos, 4, table).move;
 }

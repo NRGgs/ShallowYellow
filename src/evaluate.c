@@ -3,12 +3,12 @@
 #include "../include/position.h"
 #include <stdlib.h>
 
-static const int piece_value[6] = { 100, 300, 300, 500, 900, 1000000 };
+static const int piece_value[6] = { 100, 300, 300, 500, 900, 25565 };
+static int evalcalls = 0;
 
-int evaluate(const struct position *pos, short **table) {
+int evaluate(const struct position *pos, int **table) {
 	int score[2] = { 0, 0 };
 	int square;
-
 	for (square = 0; square < 64; square++) {
 		int piece = pos->board[square];
 
@@ -16,7 +16,9 @@ int evaluate(const struct position *pos, short **table) {
 			score[COLOR(piece)] += (piece_value[TYPE(piece)] + table[TYPE(piece)][square]);
 		}
 	}
-
+	evalcalls++;
+	if (evalcalls % 100 == 0)
+		printf("SY: %d eval calls\n", evalcalls);
 	return score[pos->side_to_move] - score[1 - pos->side_to_move];
 }
 
@@ -35,10 +37,10 @@ int old_evaluate(const struct position *pos) {
 	return score[pos->side_to_move] - score[1 - pos->side_to_move];
 }
 
-int	init_pst(short ***table)
+int	init_pst(int ***table)
 {
-	short i;
-	short	pawntable[64] = {0, 0, 0, 0, 0, 0, 0, 0,
+	int i;
+	int	pawntable[64] = {0, 0, 0, 0, 0, 0, 0, 0,
 						50, 50, 50, 50, 50, 50, 50, 50,
 						10, 10, 20, 30, 30, 20, 10, 10,
 						5, 5, 10, 25, 25, 10, 5, 5,
@@ -46,7 +48,7 @@ int	init_pst(short ***table)
 						5, -5, -10, 0, 0, -10, -5, 5,
 						5, 10, 10, -20, -20, 10, 10, 5,
 						0, 0, 0, 0, 0, 0, 0, 0};
-	short	knighttable[64] = {-50, -40, -30, -30, -30, -30, -40, -50,
+	int	knighttable[64] = {-50, -40, -30, -30, -30, -30, -40, -50,
 						-40, -20, 0, 0, 0, 0, -20, -40,
 						-30, 0, 10, 15, 15, 10, 0, -30,
 						-30, 5, 15, 20, 20, 15, 5, -30,
@@ -54,7 +56,7 @@ int	init_pst(short ***table)
 						-30, 5, 10, 15, 15, 10, 5, -30,
 						-40, -20, 0, 5, 5, 0, -20, -40,
 						-50, -40, -30, -30, -30, -30, -40, -50};
-	short	bishoptable[64] = {-20, -10, -10, -10, -10, -10, -10, -20,
+	int	bishoptable[64] = {-20, -10, -10, -10, -10, -10, -10, -20,
 						  -10, 0, 0, 0, 0, 0, 0, -10,
 						  -10, 0, 5, 10, 10, 5, 0, -10,
 						  -10, 5, 5, 10, 10, 5, 5, -10,
@@ -62,7 +64,7 @@ int	init_pst(short ***table)
 						  -10, 10, 10, 10, 10, 10, 10, -10,
 						  -10, 5, 0, 0, 0, 0, 5, -10,
 						  -20, -10, -10, -10, -10, -10, -10, -20};
-	short	rooktable[64] = {0, 0, 0, 0, 0, 0, 0, 0,
+	int	rooktable[64] = {0, 0, 0, 0, 0, 0, 0, 0,
 						5, 10, 10, 10, 10, 10, 10, 5,
 						-5, 0, 0, 0, 0, 0, 0, -5,
 						-5, 0, 0, 0, 0, 0, 0, -5,
@@ -70,7 +72,7 @@ int	init_pst(short ***table)
 						-5, 0, 0, 0, 0, 0, 0, -5,
 						-5, 0, 0, 0, 0, 0, 0, -5,
 						0, 0, 0, 5, 5, 0, 0, 0};
-	short	queentable[64] = {-20, -10, -10, -5, -5, -10, -10, -20,
+	int	queentable[64] = {-20, -10, -10, -5, -5, -10, -10, -20,
 						 -10, 0, 0, 0, 0, 0, 0, -10,
 						 -10, 0, 5, 5, 5, 5, 0, -10,
 						 -5, 0, 5, 5, 5, 5, 0, -5,
@@ -78,7 +80,7 @@ int	init_pst(short ***table)
 						 -10, 5, 5, 5, 5, 5, 5, -10,
 						 -10, 0, 5, 0, 0, 5, 0, -10,
 						 -20, -10, -10, -5, -5, -10, -10, -20};
-	short	kingtable[64] = {-30, -40, -40, -50, -50, -40, -40, -30,
+	int	kingtable[64] = {-30, -40, -40, -50, -50, -40, -40, -30,
 						-30, -40, -40, -50, -50, -40, -40, -30,
 						-30, -40, -40, -50, -50, -40, -40, -30,
 						-30, -40, -40, -50, -50, -40, -40, -30,
@@ -86,13 +88,13 @@ int	init_pst(short ***table)
 						-10, -20, -20, -20, -20, -20, -20, -10,
 						 20, 20, 0, 0, 0, 0, 20, 20,
 						 20, 30, 10, 0, 0, 10, 30, 20};
-	*table = malloc(sizeof(short *) * 6);
-	(*table)[PAWN] = malloc(sizeof(short) * 64);
-	(*table)[KNIGHT] = malloc(sizeof(short) * 64);
-	(*table)[BISHOP] = malloc(sizeof(short) * 64);
-	(*table)[ROOK] = malloc(sizeof(short) * 64);
-	(*table)[QUEEN] = malloc(sizeof(short) * 64);
-	(*table)[KING] = malloc(sizeof(short) * 64);
+	*table = malloc(sizeof(int *) * 6);
+	(*table)[PAWN] = malloc(sizeof(int) * 64);
+	(*table)[KNIGHT] = malloc(sizeof(int) * 64);
+	(*table)[BISHOP] = malloc(sizeof(int) * 64);
+	(*table)[ROOK] = malloc(sizeof(int) * 64);
+	(*table)[QUEEN] = malloc(sizeof(int) * 64);
+	(*table)[KING] = malloc(sizeof(int) * 64);
 	for (i = 0; i < 6; i++)
 		if (!(*table)[i])
 			return (free((*table)[PAWN]), free((*table)[KNIGHT]), free((*table)[BISHOP]),
@@ -109,9 +111,9 @@ int	init_pst(short ***table)
 	return (0);
 }
 
-int	main(void)
+/*int	main(void)
 {
-	short **table;
+	int **table;
 	struct position pos;
 	int i;
 	if (init_pst(&table) == -1)
@@ -124,4 +126,4 @@ int	main(void)
 		free(table[i]);
 	}
 	free(table);
-}
+}*/

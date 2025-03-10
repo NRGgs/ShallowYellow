@@ -26,7 +26,7 @@
 /*                                                                           */
 /* https://www.chessprogramming.org/Move_Generation                          */
 /* https://www.chessprogramming.org/Pseudo-Legal_Move                        */
-unsigned short generate_pseudo_legal_moves(const struct position *pos, struct move *moves);
+unsigned int generate_pseudo_legal_moves(const struct position *pos, struct move *moves);
 
 /* generate all legal moves and store them in `moves`, which must be large   */
 /* enough to hold all legal moves in the position. returns the number of     */
@@ -40,6 +40,6 @@ unsigned short generate_pseudo_legal_moves(const struct position *pos, struct mo
 /*                                                                           */
 /* https://www.chessprogramming.org/Check                                    */
 /* https://www.chessprogramming.org/Double_Check                             */
-unsigned short generate_legal_moves(const struct position *pos, struct move *moves);
+unsigned int generate_legal_moves(const struct position *pos, struct move *moves);
 
 #endif

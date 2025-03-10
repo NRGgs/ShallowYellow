@@ -86,10 +86,10 @@ static void uci_position(struct position *pos, char *token, char *store) {
 	}
 }
 
-static void uci_go(const struct position *pos, char *token, char *store, short **table) {
+static void uci_go(const struct position *pos, char *token, char *store, int **table) {
 	struct search_info info;
 	struct move move;
-	signed char buffer[] = { '\0', '\0', '\0', '\0', '\0', '\0' };
+	char buffer[] = { '\0', '\0', '\0', '\0', '\0', '\0' };
 
 	info.pos = pos;
 	info.time[WHITE] = 0;
@@ -143,7 +143,7 @@ void uci_run(const char *name, const char *author) {
 	char *line;
 	int quit = 0;
 	struct position pos;
-	short **table;
+	int **table;
 	init_pst(&table);
 
 	while (!quit && (line = get_line(stdin))) {
@@ -175,7 +175,6 @@ void uci_run(const char *name, const char *author) {
 
 			break;
 		}
-
 		free(line);
 		fflush(stdout);
 	}

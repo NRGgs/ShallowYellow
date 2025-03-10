@@ -21,13 +21,13 @@
 /* https://www.chessprogramming.org/Encoding_Moves                           */
 struct move {
 	/* the square the piece is moving from.                                  */
-	signed char from_square;
+	int from_square;
 
 	/* the square the piece is moving to.                                    */
-	signed char to_square;
+	int to_square;
 
 	/* the type of piece that is being promoted to, if any.                  */
-	signed char promotion_type;
+	int promotion_type;
 };
 
 /* create a move from the given parameters.                                  */
@@ -37,7 +37,7 @@ struct move make_move(int from_square, int to_square, int promotion_type);
 /* square, followed by the to square, optionally followed by the promotion   */
 /* type. examples: e2e4, b1c3, e7d8q, and e1g1. returns `SUCCESS` on         */
 /* success, `FAILURE` on failure.                                            */
-signed char parse_move(struct move *move, const char *string);
+int parse_move(struct move *move, const char *string);
 
 /* make a move on the position. the move must be pseudo-legal for the given  */
 /* position.                                                                 */
@@ -67,6 +67,6 @@ void do_move(struct position *pos, struct move move);
 /* moves.                                                                    */
 /*                                                                           */
 /* https://www.chessprogramming.org/Legal_Move                               */
-signed char is_legal(const struct position *pos, struct move move);
+int is_legal(const struct position *pos, struct move move);
 
 #endif

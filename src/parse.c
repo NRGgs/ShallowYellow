@@ -1,7 +1,7 @@
 #include "../include/parse.h"
 #include "../include/types.h"
 
-signed char parse_file(signed char c) {
+int parse_file(int c) {
 	switch (c) {
 	case 'a':
 		return FILE_A;
@@ -32,7 +32,7 @@ signed char parse_file(signed char c) {
 	}
 }
 
-signed char parse_rank(signed char c) {
+int parse_rank(int c) {
 	switch (c) {
 	case '1':
 		return RANK_1;
@@ -63,7 +63,7 @@ signed char parse_rank(signed char c) {
 	}
 }
 
-signed char parse_square(const char *string) {
+int parse_square(const char *string) {
 	int file = parse_file(string[0]);
 
 	if (file != NO_FILE) {
@@ -77,7 +77,7 @@ signed char parse_square(const char *string) {
 	return NO_SQUARE;
 }
 
-signed char parse_color(signed char c) {
+int parse_color(int c) {
 	switch (c) {
 	case 'w':
 		return WHITE;
@@ -90,7 +90,7 @@ signed char parse_color(signed char c) {
 	}
 }
 
-signed char parse_type(signed char c) {
+int parse_type(int c) {
 	switch (c) {
 	case 'p':
 		return PAWN;
@@ -115,7 +115,7 @@ signed char parse_type(signed char c) {
 	}
 }
 
-signed char parse_piece(signed char c) {
+int parse_piece(int c) {
 	switch (c) {
 	case 'P':
 		return PIECE(WHITE, PAWN);

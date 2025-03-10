@@ -3,9 +3,9 @@
 
 /* add the file and rank offset to the square. returns `NO_SQUARE` if the    */
 /* resulting square is off the board.                                        */
-static signed char add_offset(int square, int file_offset, int rank_offset) {
-	signed char file = FILE(square) + file_offset;
-	signed char rank = RANK(square) + rank_offset;
+static int add_offset(int square, int file_offset, int rank_offset) {
+	int file = FILE(square) + file_offset;
+	int rank = RANK(square) + rank_offset;
 
 	if (file >= 0 && file < 8 && rank >= 0 && rank < 8) {
 		return SQUARE(file, rank);
@@ -16,8 +16,8 @@ static signed char add_offset(int square, int file_offset, int rank_offset) {
 
 /* generate a pawn move, taking into account promotions. returns the number  */
 /* of moves generated.                                                       */
-static unsigned short generate_pawn_move(const struct position *pos, struct move *moves, int from_square, int to_square) {
-	unsigned short count = 0;
+static unsigned int generate_pawn_move(const struct position *pos, struct move *moves, int from_square, int to_square) {
+	unsigned int count = 0;
 
 	if (RANK(to_square) == RELATIVE(RANK_8, pos->side_to_move)) {
 		moves[count++] = make_move(from_square, to_square, KNIGHT);
@@ -35,12 +35,12 @@ static unsigned short generate_pawn_move(const struct position *pos, struct move
 /* makes sure that the destination square is on the board, and that it       */
 /* contains an opponent piece or is the en passant square. returns the       */
 /* number of moves generated.                                                */
-static unsigned short generate_pawn_capture(const struct position *pos, struct move *moves, int from_square, int file_offset, int rank_offset) {
-	signed char to_square = add_offset(from_square, file_offset, rank_offset);
+static unsigned int generate_pawn_capture(const struct position *pos, struct move *moves, int from_square, int file_offset, int rank_offset) {
+	int to_square = add_offset(from_square, file_offset, rank_offset);
 
 	if (to_square != NO_SQUARE) {
-		signed char piece = pos->board[to_square];
-		signed char capture = piece != NO_PIECE && COLOR(piece) != pos->side_to_move;
+		int piece = pos->board[to_square];
+		int capture = piece != NO_PIECE && COLOR(piece) != pos->side_to_move;
 
 		if (capture || to_square == pos->en_passant_square) {
 			return generate_pawn_move(pos, moves, from_square, to_square);
@@ -52,12 +52,12 @@ static unsigned short generate_pawn_capture(const struct position *pos, struct m
 /* generate a simple, non-sliding move. this function makes sure that the    */
 /* destination square is on the board, and that it is empty or contains an   */
 /* opponent piece. returns the number of moves generated.                    */
-static unsigned short generate_simple_move(const struct position *pos, struct move *moves, int from_square, int file_offset, int rank_offset) {
-	unsigned short count = 0;
-	signed char to_square = add_offset(from_square, file_offset, rank_offset);
+static unsigned int generate_simple_move(const struct position *pos, struct move *moves, int from_square, int file_offset, int rank_offset) {
+	unsigned int count = 0;
+	int to_square = add_offset(from_square, file_offset, rank_offset);
 
 	if (to_square != NO_SQUARE) {
-		signed char piece = pos->board[to_square];
+		int piece = pos->board[to_square];
 
 		if (piece == NO_PIECE || COLOR(piece) != pos->side_to_move) {
 			moves[count++] = make_move(from_square, to_square, NO_TYPE);
@@ -70,12 +70,12 @@ static unsigned short generate_simple_move(const struct position *pos, struct mo
 /* generate a sliding move. this function keeps adding the offset in a loop  */
 /* until the destination square runs off the board or into another piece.    */
 /* returns the number of moves generated.                                    */
-static unsigned short generate_sliding_move(const struct position *pos, struct move *moves, int from_square, int file_offset, int rank_offset) {
-	unsigned short count = 0;
-	signed char to_square = add_offset(from_square, file_offset, rank_offset);
+static unsigned int generate_sliding_move(const struct position *pos, struct move *moves, int from_square, int file_offset, int rank_offset) {
+	unsigned int count = 0;
+	int to_square = add_offset(from_square, file_offset, rank_offset);
 
 	while (to_square != NO_SQUARE) {
-		signed char piece = pos->board[to_square];
+		int piece = pos->board[to_square];
 
 		if (piece == NO_PIECE || COLOR(piece) != pos->side_to_move) {
 			moves[count++] = make_move(from_square, to_square, NO_TYPE);
@@ -91,13 +91,13 @@ static unsigned short generate_sliding_move(const struct position *pos, struct m
 	return count;
 }
 
-unsigned short generate_pseudo_legal_moves(const struct position *pos, struct move *moves) {
-	unsigned short count = 0;
-	signed char forward = pos->side_to_move == WHITE ? 1 : -1;
-	signed char square;
+unsigned int generate_pseudo_legal_moves(const struct position *pos, struct move *moves) {
+	unsigned int count = 0;
+	int forward = pos->side_to_move == WHITE ? 1 : -1;
+	int square;
 
 	for (square = 0; square < 64; square++) {
-		signed char piece = pos->board[square];
+		int piece = pos->board[square];
 
 		/* skip this square if it is empty or contains an opponent piece.    */
 		if (piece == NO_PIECE || COLOR(piece) != pos->side_to_move) {
@@ -105,8 +105,8 @@ unsigned short generate_pseudo_legal_moves(const struct position *pos, struct mo
 		}
 
 		switch (TYPE(piece)) {
-			signed char up;
-			signed char up_up;
+			int up;
+			int up_up;
 
 		case PAWN:
 			up = add_offset(square, 0, forward);
@@ -186,12 +186,12 @@ unsigned short generate_pseudo_legal_moves(const struct position *pos, struct mo
 
 			/* queen side castling.                                          */
 			if (pos->castling_rights[pos->side_to_move] & QUEEN_SIDE) {
-				signed char b1 = SQUARE(FILE_B, RELATIVE(RANK_1, pos->side_to_move));
-				signed char c1 = SQUARE(FILE_C, RELATIVE(RANK_1, pos->side_to_move));
-				signed char d1 = SQUARE(FILE_D, RELATIVE(RANK_1, pos->side_to_move));
-				signed char b1_empty = pos->board[b1] == NO_PIECE;
-				signed char c1_empty = pos->board[c1] == NO_PIECE;
-				signed char d1_empty = pos->board[d1] == NO_PIECE;
+				int b1 = SQUARE(FILE_B, RELATIVE(RANK_1, pos->side_to_move));
+				int c1 = SQUARE(FILE_C, RELATIVE(RANK_1, pos->side_to_move));
+				int d1 = SQUARE(FILE_D, RELATIVE(RANK_1, pos->side_to_move));
+				int b1_empty = pos->board[b1] == NO_PIECE;
+				int c1_empty = pos->board[c1] == NO_PIECE;
+				int d1_empty = pos->board[d1] == NO_PIECE;
 
 				if (b1_empty && c1_empty && d1_empty) {
 					moves[count++] = make_move(square, c1, NO_TYPE);
@@ -205,10 +205,10 @@ unsigned short generate_pseudo_legal_moves(const struct position *pos, struct mo
 	return count;
 }
 
-unsigned short generate_legal_moves(const struct position *pos, struct move *moves) {
-	unsigned short pseudo_legal_count = generate_pseudo_legal_moves(pos, moves);
-	unsigned short index;
-	unsigned short count = 0;
+unsigned int generate_legal_moves(const struct position *pos, struct move *moves) {
+	unsigned int pseudo_legal_count = generate_pseudo_legal_moves(pos, moves);
+	unsigned int index;
+	unsigned int count = 0;
 
 	for (index = 0; index < pseudo_legal_count; index++) {
 		if (is_legal(pos, moves[index])) {
