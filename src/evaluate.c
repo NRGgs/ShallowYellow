@@ -1,10 +1,26 @@
 #include "../include/evaluate.h"
 #include "../include/types.h"
+#include "../include/position.h"
 #include <stdlib.h>
 
 static const int piece_value[6] = { 100, 300, 300, 500, 900, 1000000 };
 
-int evaluate(const struct position *pos) {
+int evaluate(const struct position *pos, short **table) {
+	int score[2] = { 0, 0 };
+	int square;
+
+	for (square = 0; square < 64; square++) {
+		int piece = pos->board[square];
+
+		if (piece != NO_PIECE) {
+			score[COLOR(piece)] += (piece_value[TYPE(piece)] + table[TYPE(piece)][square]);
+		}
+	}
+
+	return score[pos->side_to_move] - score[1 - pos->side_to_move];
+}
+
+int old_evaluate(const struct position *pos) {
 	int score[2] = { 0, 0 };
 	int square;
 
@@ -19,9 +35,9 @@ int evaluate(const struct position *pos) {
 	return score[pos->side_to_move] - score[1 - pos->side_to_move];
 }
 
-int	init_pst(t_pst *table)
+int	init_pst(short ***table)
 {
-	int i;
+	short i;
 	short	pawntable[64] = {0, 0, 0, 0, 0, 0, 0, 0,
 						50, 50, 50, 50, 50, 50, 50, 50,
 						10, 10, 20, 30, 30, 20, 10, 10,
@@ -70,38 +86,42 @@ int	init_pst(t_pst *table)
 						-10, -20, -20, -20, -20, -20, -20, -10,
 						 20, 20, 0, 0, 0, 0, 20, 20,
 						 20, 30, 10, 0, 0, 10, 30, 20};
-	table->pawn = malloc(sizeof(short) * 64);
-	table->knight = malloc(sizeof(short) * 64);
-	table->bishop = malloc(sizeof(short) * 64);
-	table->rook = malloc(sizeof(short) * 64);
-	table->queen = malloc(sizeof(short) * 64);
-	table->king = malloc(sizeof(short) * 64);
-	if (!table->pawn || !table->knight || !table->bishop
-		|| !table->rook || !table->queen || !table->king)
-		return (free(table->pawn), free(table->knight), free(table->bishop),
-				free(table->rook), free(table->queen), free(table->king), -1);
+	*table = malloc(sizeof(short *) * 6);
+	(*table)[PAWN] = malloc(sizeof(short) * 64);
+	(*table)[KNIGHT] = malloc(sizeof(short) * 64);
+	(*table)[BISHOP] = malloc(sizeof(short) * 64);
+	(*table)[ROOK] = malloc(sizeof(short) * 64);
+	(*table)[QUEEN] = malloc(sizeof(short) * 64);
+	(*table)[KING] = malloc(sizeof(short) * 64);
+	for (i = 0; i < 6; i++)
+		if (!(*table)[i])
+			return (free((*table)[PAWN]), free((*table)[KNIGHT]), free((*table)[BISHOP]),
+				free((*table)[ROOK]), free((*table)[QUEEN]), free((*table)[KING]), -1);
 	for (i = 0; i < 64; i++)
 	{
-		table->pawn[i] = pawntable[i];
-		table->knight[i] = knighttable[i];
-		table->bishop[i] = bishoptable[i];
-		table->rook[i] = rooktable[i];
-		table->queen[i] = queentable[i];
-		table->king[i] = kingtable[i];
+		(*table)[PAWN][i] = pawntable[i];
+		(*table)[KNIGHT][i] = knighttable[i];
+		(*table)[BISHOP][i] = bishoptable[i];
+		(*table)[ROOK][i] = rooktable[i];
+		(*table)[QUEEN][i] = queentable[i];
+		(*table)[KING][i] = kingtable[i];
 	}
 	return (0);
 }
 
-/*int	main(void)
+int	main(void)
 {
-	t_pst table;
+	short **table;
+	struct position pos;
 	int i;
 	if (init_pst(&table) == -1)
 		return (-1);
-	for (i = 0; i < 64; i++)
-	{
-		printf("[%d]:%d\t", i, table.pawn[i]);
-		if (((i + 1) % 8) == 0)
-			printf("\n");
+	parse_position(&pos, "rnb2k1r/1ppp2p1/p3pn1p/4N3/3P1P2/1N4P1/P1Q1K2P/R4B1R b - - 0 17");
+	print_position(&pos, stdout);
+	printf("Score for this position: %d\n", evaluate(&pos, table));
+	printf("OLD Score for this position: %d\n", old_evaluate(&pos));
+	for (i = 0; i < 6; i++) {
+		free(table[i]);
 	}
-}*/
+	free(table);
+}

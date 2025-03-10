@@ -1,17 +1,17 @@
-#include "search.h"
-#include "evaluate.h"
-#include "generate.h"
+#include "../include/search.h"
+#include "../include/evaluate.h"
+#include "../include/generate.h"
 
 #include <limits.h>
 
-struct search_result minimax(const struct position *pos, int depth) {
+struct search_result minimax(const struct position *pos, int depth, short **table) {
 	struct search_result result;
 
 	result.score = -1000000;
 
 	if (depth == 0) {
 		/* we have reached our search depth, so evaluate the position.       */
-		result.score = evaluate(pos);
+		result.score = evaluate(pos, table);
 	} else {
 		struct move moves[MAX_MOVES];
 		size_t count = generate_legal_moves(pos, moves);
@@ -27,7 +27,7 @@ struct search_result minimax(const struct position *pos, int depth) {
 
 			/* minimax is called recursively. this call returns the score of */
 			/* the opponent, so we must negate it to get our score.          */
-			score = -minimax(&copy, depth - 1).score;
+			score = -minimax(&copy, depth - 1, table).score;
 
 			/* update the best move if we found a better one.                */
 			if (score > result.score) {
@@ -40,6 +40,6 @@ struct search_result minimax(const struct position *pos, int depth) {
 	return result;
 }
 
-struct move search(const struct search_info *info) {
-	return minimax(info->pos, 4).move;
+struct move search(const struct search_info *info, short **table) {
+	return minimax(info->pos, 4, table).move;
 }

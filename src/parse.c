@@ -1,5 +1,5 @@
-#include "parse.h"
-#include "types.h"
+#include "../include/parse.h"
+#include "../include/types.h"
 
 signed char parse_file(signed char c) {
 	switch (c) {

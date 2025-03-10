@@ -1,7 +1,8 @@
-#include "uci.h"
-#include "search.h"
-#include "move.h"
-#include "types.h"
+#include "../include/uci.h"
+#include "../include/search.h"
+#include "../include/move.h"
+#include "../include/types.h"
+#include "../include/evaluate.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -85,7 +86,7 @@ static void uci_position(struct position *pos, char *token, char *store) {
 	}
 }
 
-static void uci_go(const struct position *pos, char *token, char *store) {
+static void uci_go(const struct position *pos, char *token, char *store, short **table) {
 	struct search_info info;
 	struct move move;
 	signed char buffer[] = { '\0', '\0', '\0', '\0', '\0', '\0' };
@@ -124,7 +125,7 @@ static void uci_go(const struct position *pos, char *token, char *store) {
 		}
 	}
 
-	move = search(&info);
+	move = search(&info, table);
 
 	buffer[0] = "abcdefgh"[FILE(move.from_square)];
 	buffer[1] = '1' + RANK(move.from_square);
@@ -142,6 +143,8 @@ void uci_run(const char *name, const char *author) {
 	char *line;
 	int quit = 0;
 	struct position pos;
+	short **table;
+	init_pst(&table);
 
 	while (!quit && (line = get_line(stdin))) {
 		char *token = line;
@@ -161,7 +164,7 @@ void uci_run(const char *name, const char *author) {
 			} else if (!strcmp(token, "position")) {
 				uci_position(&pos, token, &store);
 			} else if (!strcmp(token, "go")) {
-				uci_go(&pos, token, &store);
+				uci_go(&pos, token, &store, table);
 			} else if (!strcmp(token, "setoption")) {
 				break;
 			} else if (!strcmp(token, "register")) {

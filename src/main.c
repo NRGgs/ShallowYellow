@@ -1,5 +1,5 @@
-#include "perft.h"
-#include "uci.h"
+#include "../include/perft.h"
+#include "../include/uci.h"
 
 #include <stdlib.h>
 

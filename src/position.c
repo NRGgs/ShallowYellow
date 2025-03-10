@@ -1,6 +1,6 @@
-#include "position.h"
-#include "parse.h"
-#include "types.h"
+#include "../include/position.h"
+#include "../include/parse.h"
+#include "../include/types.h"
 
 void print_position(const struct position *pos, FILE *stream) {
 	signed char castling_rights_buffer[] = { '-', '\0', '\0', '\0', '\0' };

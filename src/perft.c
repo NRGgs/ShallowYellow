@@ -1,7 +1,7 @@
-#include "perft.h"
-#include "generate.h"
-#include "position.h"
-#include "types.h"
+#include "../include/perft.h"
+#include "../include/generate.h"
+#include "../include/position.h"
+#include "../include/types.h"
 
 #include <stddef.h>
 
