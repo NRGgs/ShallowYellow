@@ -1,9 +1,29 @@
 #include "../include/evaluate.h"
+#include "../include/generate.h"
 #include "../include/types.h"
 #include "../include/move.h"
 #include <stdlib.h>
 
 static const int piece_value[6] = { 100, 300, 300, 500, 900, 25565 };
+
+int mobility_for_pieces(int movecount, struct position *pos, struct move *moves)
+{
+	int mobilitypoints = 0;
+	int square;
+	for (square = 0; square < 64; square++)
+	{
+		int move;
+		int piece = pos->board[square];
+		if (piece == NO_PIECE || COLOR(piece) != pos->side_to_move) //skip empty squares and opponent pieces
+			continue;
+		for (move = 0; move < movecount; move++)
+		{
+			if (moves[move].from_square == square)
+				mobilitypoints++; // right now only does 1 mobility point per move, disregarding piece type, must improve
+		}
+	}
+	return (mobilitypoints);
+}
 
 int *evaluate(const struct position *pos, struct move move, int **table, int total_value[2]) {
 	int moved_piece = pos->board[move.from_square];
@@ -16,9 +36,13 @@ int *evaluate(const struct position *pos, struct move move, int **table, int tot
 		total_value[1 - pos->side_to_move] -= piece_value[TYPE(captured_piece)];
 		total_value[1 -pos->side_to_move] -= table[TYPE(captured_piece)][RELATIVESQUARE(move.to_square, captured_piece)];
 	}
+	do_move(pos, move);
+	struct move moves[256];
+	total_value[pos->side_to_move] += mobility_for_pieces(generate_legal_moves(pos, moves), pos, moves);
 	// return total_value[1 - pos->side_to_move] - total_value[pos->side_to_move];
 	return total_value;
 }
+
 
 int old_evaluate(const struct position *pos) {
 	int score[2] = { 0, 0 };
@@ -94,7 +118,7 @@ int	init_pst(int ***table)
 	};
 
 	int kingtable[64] = {
-		20, 30, 10, 0, 0, 10, 30, 20,
+		20, 70, 10, 0, 0, 10, 70, 20,
 		20, 20, 0, 0, 0, 0, 20, 20,
 		-10, -20, -20, -20, -20, -20, -20, -10,
 		-20, -30, -30, -40, -40, -30, -30, -20,
