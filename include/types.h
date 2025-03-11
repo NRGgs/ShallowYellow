@@ -63,4 +63,6 @@
 /* returns the rank from the perspective of the given color.                 */
 #define RELATIVE(rank, color) ((color) == WHITE ? (rank) : (int)7 - (rank))
 
+#define RELATIVESQUARE(square, piece) (SQUARE(FILE(square), RELATIVE(RANK(square), COLOR(piece))))
+
 #endif

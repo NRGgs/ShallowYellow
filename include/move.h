@@ -3,6 +3,17 @@
 
 #include "position.h"
 
+#define MASK_BOOL = 1
+#define MASK_PIECE = 7
+#define MASK_SQUARE = 63
+#define CHECK = 0
+#define CAPTURE = 1
+#define CAPTURED_PIECE = 2
+#define MOVED_PIECE = 5
+#define TO_SQUARE = 8
+#define FROM_SQUARE = 14
+#define PROMO_TYPE = 20
+
 /* this struct represents a chess move.                                      */
 /*                                                                           */
 /* POSSIBLE IMPROVEMENT: compact encoding                                    */
@@ -28,6 +39,15 @@ struct move {
 
 	/* the type of piece that is being promoted to, if any.                  */
 	int promotion_type;
+	/*
+	1 bit  for capture (bool)
+	1 bit  for check (bool)
+	3 bits for captured piece type
+	3 bits for piece type
+	8 bits for to_square
+	8 bits for from_square
+	3 bits for promotion type
+	*/
 };
 
 /* create a move from the given parameters.                                  */

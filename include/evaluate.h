@@ -39,7 +39,6 @@
 /* https://www.chessprogramming.org/Evaluation                               */
 /* https://www.chessprogramming.org/Piece-Square_Tables                      */
 /* https://www.chessprogramming.org/Mobility                                 */
-int evaluate(const struct position *pos, int **table);
 
 int	init_pst(int ***table);
 

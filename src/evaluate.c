@@ -1,25 +1,23 @@
 #include "../include/evaluate.h"
 #include "../include/types.h"
-#include "../include/position.h"
+#include "../include/move.h"
 #include <stdlib.h>
 
 static const int piece_value[6] = { 100, 300, 300, 500, 900, 25565 };
-static int evalcalls = 0;
 
-int evaluate(const struct position *pos, int **table) {
-	int score[2] = { 0, 0 };
-	int square;
-	for (square = 0; square < 64; square++) {
-		int piece = pos->board[square];
+int *evaluate(const struct position *pos, struct move move, int **table, int total_value[2]) {
+	int moved_piece = pos->board[move.from_square];
+	int	captured_piece = pos->board[move.to_square];
 
-		if (piece != NO_PIECE) {
-			score[COLOR(piece)] += (piece_value[TYPE(piece)] + table[TYPE(piece)][square]);
-		}
+	total_value[pos->side_to_move] -= table[TYPE(moved_piece)][RELATIVESQUARE(move.from_square, moved_piece)];
+	total_value[pos->side_to_move] += table[TYPE(moved_piece)][RELATIVESQUARE(move.to_square, moved_piece)];
+	if (captured_piece != NO_PIECE)
+	{
+		total_value[1 - pos->side_to_move] -= piece_value[TYPE(captured_piece)];
+		total_value[1 -pos->side_to_move] -= table[TYPE(captured_piece)][RELATIVESQUARE(move.to_square, captured_piece)];
 	}
-	evalcalls++;
-	if (evalcalls % 100 == 0)
-		printf("SY: %d eval calls\n", evalcalls);
-	return score[pos->side_to_move] - score[1 - pos->side_to_move];
+	// return total_value[1 - pos->side_to_move] - total_value[pos->side_to_move];
+	return total_value;
 }
 
 int old_evaluate(const struct position *pos) {
@@ -40,54 +38,71 @@ int old_evaluate(const struct position *pos) {
 int	init_pst(int ***table)
 {
 	int i;
-	int	pawntable[64] = {0, 0, 0, 0, 0, 0, 0, 0,
-						50, 50, 50, 50, 50, 50, 50, 50,
-						10, 10, 20, 30, 30, 20, 10, 10,
-						5, 5, 10, 25, 25, 10, 5, 5,
-						0, 0, 0, 20, 20, 0, 0, 0,
-						5, -5, -10, 0, 0, -10, -5, 5,
-						5, 10, 10, -20, -20, 10, 10, 5,
-						0, 0, 0, 0, 0, 0, 0, 0};
-	int	knighttable[64] = {-50, -40, -30, -30, -30, -30, -40, -50,
-						-40, -20, 0, 0, 0, 0, -20, -40,
-						-30, 0, 10, 15, 15, 10, 0, -30,
-						-30, 5, 15, 20, 20, 15, 5, -30,
-						-30, 0, 15, 20, 20, 15, 0, -30,
-						-30, 5, 10, 15, 15, 10, 5, -30,
-						-40, -20, 0, 5, 5, 0, -20, -40,
-						-50, -40, -30, -30, -30, -30, -40, -50};
-	int	bishoptable[64] = {-20, -10, -10, -10, -10, -10, -10, -20,
-						  -10, 0, 0, 0, 0, 0, 0, -10,
-						  -10, 0, 5, 10, 10, 5, 0, -10,
-						  -10, 5, 5, 10, 10, 5, 5, -10,
-						  -10, 0, 10, 10, 10, 10, 0, -10,
-						  -10, 10, 10, 10, 10, 10, 10, -10,
-						  -10, 5, 0, 0, 0, 0, 5, -10,
-						  -20, -10, -10, -10, -10, -10, -10, -20};
-	int	rooktable[64] = {0, 0, 0, 0, 0, 0, 0, 0,
-						5, 10, 10, 10, 10, 10, 10, 5,
-						-5, 0, 0, 0, 0, 0, 0, -5,
-						-5, 0, 0, 0, 0, 0, 0, -5,
-						-5, 0, 0, 0, 0, 0, 0, -5,
-						-5, 0, 0, 0, 0, 0, 0, -5,
-						-5, 0, 0, 0, 0, 0, 0, -5,
-						0, 0, 0, 5, 5, 0, 0, 0};
-	int	queentable[64] = {-20, -10, -10, -5, -5, -10, -10, -20,
-						 -10, 0, 0, 0, 0, 0, 0, -10,
-						 -10, 0, 5, 5, 5, 5, 0, -10,
-						 -5, 0, 5, 5, 5, 5, 0, -5,
-						  0, 0, 5, 5, 5, 5, 0, 0,
-						 -10, 5, 5, 5, 5, 5, 5, -10,
-						 -10, 0, 5, 0, 0, 5, 0, -10,
-						 -20, -10, -10, -5, -5, -10, -10, -20};
-	int	kingtable[64] = {-30, -40, -40, -50, -50, -40, -40, -30,
-						-30, -40, -40, -50, -50, -40, -40, -30,
-						-30, -40, -40, -50, -50, -40, -40, -30,
-						-30, -40, -40, -50, -50, -40, -40, -30,
-						-20, -30, -30, -40, -40, -30, -30, -20,
-						-10, -20, -20, -20, -20, -20, -20, -10,
-						 20, 20, 0, 0, 0, 0, 20, 20,
-						 20, 30, 10, 0, 0, 10, 30, 20};
+	int pawntable[64] = {
+		0, 0, 0, 0, 0, 0, 0, 0,
+		5, 10, 10, -20, -20, 10, 10, 5,
+		5, -5, -10, 0, 0, -10, -5, 5,
+		0, 0, 0, 20, 20, 0, 0, 0,
+		5, 5, 10, 25, 25, 10, 5, 5,
+		10, 10, 20, 30, 30, 20, 10, 10,
+		50, 50, 50, 50, 50, 50, 50, 50,
+		0, 0, 0, 0, 0, 0, 0, 0
+		};
+
+	int knighttable[64] = {
+		-50, -40, -30, -30, -30, -30, -40, -50,
+		-40, -20, 0, 5, 5, 0, -20, -40,
+		-30, 5, 10, 15, 15, 10, 5, -30,
+		-30, 0, 15, 20, 20, 15, 0, -30,
+		-30, 5, 15, 20, 20, 15, 5, -30,
+		-30, 0, 10, 15, 15, 10, 0, -30,
+		-40, -20, 0, 0, 0, 0, -20, -40,
+		-50, -40, -30, -30, -30, -30, -40, -50
+	};
+
+	int bishoptable[64] = {
+		-20, -10, -10, -10, -10, -10, -10, -20,
+		-10, 5, 0, 0, 0, 0, 5, -10,
+		-10, 10, 10, 10, 10, 10, 10, -10,
+		-10, 0, 10, 10, 10, 10, 0, -10,
+		-10, 5, 5, 10, 10, 5, 5, -10,
+		-10, 0, 5, 10, 10, 5, 0, -10,
+		-10, 0, 0, 0, 0, 0, 0, -10,
+		-20, -10, -10, -10, -10, -10, -10, -20
+	};
+
+	int rooktable[64] = {
+		0, 0, 0, 5, 5, 0, 0, 0,
+		-5, 0, 0, 0, 0, 0, 0, -5,
+		-5, 0, 0, 0, 0, 0, 0, -5,
+		-5, 0, 0, 0, 0, 0, 0, -5,
+		-5, 0, 0, 0, 0, 0, 0, -5,
+		-5, 0, 0, 0, 0, 0, 0, -5,
+		5, 10, 10, 10, 10, 10, 10, 5,
+		0, 0, 0, 0, 0, 0, 0, 0
+	};
+
+	int queentable[64] = {
+		-20, -10, -10, -5, -5, -10, -10, -20,
+		-10, 0, 5, 0, 0, 5, 0, -10,
+		-10, 5, 5, 5, 5, 5, 5, -10,
+		0, 0, 5, 5, 5, 5, 0, 0,
+		-5, 0, 5, 5, 5, 5, 0, -5,
+		-10, 0, 5, 5, 5, 5, 0, -10,
+		-10, 0, 0, 0, 0, 0, 0, -10,
+		-20, -10, -10, -5, -5, -10, -10, -20
+	};
+
+	int kingtable[64] = {
+		20, 30, 10, 0, 0, 10, 30, 20,
+		20, 20, 0, 0, 0, 0, 20, 20,
+		-10, -20, -20, -20, -20, -20, -20, -10,
+		-20, -30, -30, -40, -40, -30, -30, -20,
+		-30, -40, -40, -50, -50, -40, -40, -30,
+		-30, -40, -40, -50, -50, -40, -40, -30,
+		-30, -40, -40, -50, -50, -40, -40, -30,
+		-30, -40, -40, -50, -50, -40, -40, -30
+	};
 	*table = malloc(sizeof(int *) * 6);
 	(*table)[PAWN] = malloc(sizeof(int) * 64);
 	(*table)[KNIGHT] = malloc(sizeof(int) * 64);

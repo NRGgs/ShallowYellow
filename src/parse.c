@@ -73,7 +73,7 @@ int parse_square(const char *string) {
 			return SQUARE(file, rank);
 		}
 	}
-	
+
 	return NO_SQUARE;
 }
 
