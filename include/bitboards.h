@@ -1,7 +1,15 @@
-typedef struct s_epic
+typedef struct s_board
 {
-	int	epic;
-}	t_epic;
+	long	pieces[2][6];	// pieces[COLOUR][PIECES]
+	long	side[2];		// side[COLOUR]
+	int		piece_list[64];	// piece_list[SQUARE]
+}	t_board;
+
+const typedef enum e_colour
+{
+	C_WHITE,
+	C_BLACK,
+}	e_colour;
 
 const typedef enum e_bitpiece
 {
