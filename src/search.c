@@ -5,9 +5,9 @@
 
 #include <limits.h>
 
-int *evaluate(const struct position *pos, struct move move, int **table, int total_value[2]);
+int *evaluate(const struct position *pos, struct move move, int ***table, int total_value[2]);
 
-struct search_result minimax(const struct position *pos, const struct position *og, struct move *move, int depth, int **table,
+struct search_result minimax(const struct position *pos, const struct position *og, struct move *move, int depth, int ***table,
 							int alpha, int beta, int total_value[2]) {
 	struct search_result result;
 	int valuecpy[2];
@@ -64,9 +64,10 @@ struct search_result minimax(const struct position *pos, const struct position *
 	return result;
 }
 
-struct move search(const struct search_info *info, int **table) {
+struct move search(const struct search_info *info, int ***table) {
 	int	alpha = INT_MIN;
 	int	beta = INT_MAX;
+	int	game_stage = get_game_stage(info->pos->board);
 
 	int score[2] = { 0, 0 };
 	static const int piece_value[6] = { 100, 300, 300, 500, 900, 25565 };
@@ -75,7 +76,7 @@ struct move search(const struct search_info *info, int **table) {
 		int piece = info->pos->board[square];
 
 		if (piece != NO_PIECE) {
-			score[COLOR(piece)] += (piece_value[TYPE(piece)] + table[TYPE(piece)][RELATIVESQUARE(square, piece)]);
+			score[COLOR(piece)] += (piece_value[TYPE(piece)] + table[TYPE(piece)][game_stage][RELATIVESQUARE(square, piece)]);
 		}
 	}
 	printf("-----score: %d-----\n\n\n", score[info->pos->side_to_move] - score[1 - info->pos->side_to_move]);

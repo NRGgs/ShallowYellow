@@ -40,6 +40,7 @@
 /* https://www.chessprogramming.org/Piece-Square_Tables                      */
 /* https://www.chessprogramming.org/Mobility                                 */
 
-int	init_pst(int ***table);
+int	init_pst(int ****table);
+int	get_game_stage(const int *board);
 
 #endif
