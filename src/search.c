@@ -70,13 +70,15 @@ struct move search(const struct search_info *info, int ***table) {
 	int	game_stage = get_game_stage(info->pos->board);
 
 	int score[2] = { 0, 0 };
-	static const int piece_value[6] = { 100, 300, 300, 500, 900, 25565 };
+	static const int piece_value[2][6] = {{ 82, 337, 365, 477, 1025, 25565 },
+										{ 94, 281, 297, 512,  936, 25565 }};
+
 	int square;
 	for (square = 0; square < 64; square++) {
 		int piece = info->pos->board[square];
 
 		if (piece != NO_PIECE) {
-			score[COLOR(piece)] += (piece_value[TYPE(piece)] + table[TYPE(piece)][game_stage][RELATIVESQUARE(square, piece)]);
+			score[COLOR(piece)] += (piece_value[game_stage][TYPE(piece)] + table[TYPE(piece)][game_stage][RELATIVESQUARE(square, piece)]);
 		}
 	}
 	printf("-----score: %d-----\n\n\n", score[info->pos->side_to_move] - score[1 - info->pos->side_to_move]);

@@ -4,9 +4,38 @@
 #include "../include/move.h"
 #include <stdlib.h>
 
-void	free_this_monster(int ****table);
+static const int piece_value[2][6] = {{ 82, 337, 365, 477, 1025, 25565 },
+										{ 94, 281, 297, 512,  936, 25565 }};
 
-static const int piece_value[6] = { 100, 300, 300, 500, 900, 25565 };
+void	free_this_monster(int ****table);
+int		mobility_for_pieces(int movecount, struct position *pos, struct move *moves);
+int		center_control(const struct position *pos);
+int		king_safety(const struct position *pos);
+int		pawn_structure(const struct position *pos);
+
+int *evaluate(const struct position *pos, struct move move, int ***table, int total_value[2]) {
+	int moved_piece = pos->board[move.from_square];
+	int	captured_piece = pos->board[move.to_square];
+	int	game_stage = get_game_stage(pos->board);
+
+	total_value[pos->side_to_move] -= table[TYPE(moved_piece)][game_stage][RELATIVESQUARE(move.from_square, moved_piece)];
+	total_value[pos->side_to_move] += table[TYPE(moved_piece)][game_stage][RELATIVESQUARE(move.to_square, moved_piece)];
+	if (captured_piece != NO_PIECE)
+	{
+		total_value[pos->side_to_move] += piece_value[game_stage][TYPE(captured_piece)] * 5000;
+		total_value[1 - pos->side_to_move] -= piece_value[game_stage][TYPE(captured_piece)] * 5000;
+		total_value[1 - pos->side_to_move] -= table[TYPE(captured_piece)][game_stage][RELATIVESQUARE(move.to_square, captured_piece)];
+	}
+
+	total_value[pos->side_to_move] += center_control(pos);
+	total_value[pos->side_to_move] += king_safety(pos);
+	total_value[pos->side_to_move] += pawn_structure(pos);
+
+	// do_move(pos, move);
+	// struct move moves[256];
+	// total_value[pos->side_to_move] += mobility_for_pieces(generate_legal_moves(pos, moves), pos, moves);
+	return (total_value);
+}
 
 int mobility_for_pieces(int movecount, struct position *pos, struct move *moves)
 {
@@ -27,23 +56,114 @@ int mobility_for_pieces(int movecount, struct position *pos, struct move *moves)
 	return (mobilitypoints);
 }
 
-int *evaluate(const struct position *pos, struct move move, int ***table, int total_value[2]) {
-	int moved_piece = pos->board[move.from_square];
-	int	captured_piece = pos->board[move.to_square];
-	int	game_stage = get_game_stage(pos->board);
+int	center_control(const struct position *pos)
+{
+	int	center_control_points = 0;
+	int	center[4] = {27, 28, 35, 36};
 
-	total_value[pos->side_to_move] -= table[TYPE(moved_piece)][game_stage][RELATIVESQUARE(move.from_square, moved_piece)];
-	total_value[pos->side_to_move] += table[TYPE(moved_piece)][game_stage][RELATIVESQUARE(move.to_square, moved_piece)];
-	if (captured_piece != NO_PIECE)
+	for (int i = 0; i < 4; i++)
 	{
-		total_value[1 - pos->side_to_move] -= piece_value[TYPE(captured_piece)];
-		total_value[1 -pos->side_to_move] -= table[TYPE(captured_piece)][game_stage][RELATIVESQUARE(move.to_square, captured_piece)];
+		int square = center[i];
+		int piece = pos->board[square];
+
+		if (piece != NO_PIECE && COLOR(piece) == pos->side_to_move)
+			center_control_points += 500;
+		else if (piece != NO_PIECE && COLOR(piece) != pos->side_to_move)
+			center_control_points -= 500;
 	}
-	do_move(pos, move);
-	struct move moves[256];
-	total_value[pos->side_to_move] += mobility_for_pieces(generate_legal_moves(pos, moves), pos, moves);
-	// return total_value[1 - pos->side_to_move] - total_value[pos->side_to_move];
-	return total_value;
+	return (center_control_points);
+}
+
+int	king_safety(const struct position *pos)
+{
+	int	king_safety_points = 0;
+	int	king_square = 0;
+	for (int square = 0; square < 64; square++)
+	{
+		if (pos->board[square] == PIECE(pos->side_to_move, KING))
+		{
+			king_square = square;
+			break ;
+		}
+	}
+
+	int king_neighbours[8] = {king_square - 1, king_square + 1,
+								king_square - 8, king_square + 8,
+								king_square - 7, king_square + 7,
+								king_square - 9, king_square + 9};
+
+	for (int i = 0; i < 8; i++)
+	{
+		if (king_neighbours[i] >= 0 && king_neighbours[i] < 64)
+		{
+			int piece = pos->board[king_neighbours[i]];
+			if (piece != NO_PIECE && piece == PIECE(pos->side_to_move, PAWN))
+				king_safety_points += 100;
+			else if (piece != NO_PIECE)
+				king_safety_points -= 100;
+		}
+	}
+	return (king_safety_points);
+}
+
+int	is_isolated_pawn(const struct position *pos, int square)
+{
+	int	file = FILE(square);
+
+	if ((file > 0 && pos->board[square - 1]) == PIECE(pos->side_to_move, PAWN)
+		|| (file < 7 && pos->board[square + 1]) == PIECE(pos->side_to_move, PAWN))
+			return (0);
+	return (1);
+}
+
+int	is_doubled_pawn(const struct position *pos, int square)
+{
+	int	file = FILE(square);
+	int	rank = RANK(square);
+
+	if ((rank > 0 && pos->board[square - 8] == PIECE(pos->side_to_move, PAWN)) ||
+		(rank < 7 && pos->board[square + 8] == PIECE(pos->side_to_move, PAWN)))
+			return (1);
+	return (0);
+}
+
+int	is_passed_pawn(const struct position *pos, int square)
+{
+	int	file = FILE(square);
+	int	direction = (pos->side_to_move == WHITE) ? -8 : 8;
+	int	opponent_pawn = PIECE(1 - pos->side_to_move, PAWN);
+
+	for (int i = 1; i <= 7; i++)
+	{
+		int front_square = square + direction * i;
+		if (front_square < 0 || front_square >= 64)
+			break ;
+		if ((file > 0 && pos->board[front_square - 1] == opponent_pawn)
+			|| (pos->board[front_square] == opponent_pawn)
+			|| (file < 7 && pos->board[front_square + 1] == opponent_pawn))
+				return (0);
+	}
+	return (1);
+}
+
+int	pawn_structure(const struct position *pos)
+{
+	int	pawn_structure_points = 0;
+
+	for (int square = 0; square < 64; square++)
+	{
+		int piece = pos->board[square];
+		if (piece == PIECE(pos->side_to_move, PAWN))
+		{
+			if (is_isolated_pawn(pos, square))
+				pawn_structure_points -= 100;
+			if (is_doubled_pawn(pos, square))
+				pawn_structure_points -= 50;
+			if (is_passed_pawn(pos, square))
+				pawn_structure_points += 200;
+		}
+	}
+	return (pawn_structure_points);
 }
 
 int	init_pst(int ****table)
@@ -292,34 +412,20 @@ int	get_game_stage(const int *board)
 // 	return (0);
 // }
 
-// int old_evaluate(const struct position *pos) {
-// 	int score[2] = { 0, 0 };
-// 	int square;
+// int	main(void)
+// {
+// 	int ***table;
+// 	struct position pos;
+// 	struct move move;
+// 	int *total_value;
 
-// 	for (square = 0; square < 64; square++) {
-// 		int piece = pos->board[square];
-
-// 		if (piece != NO_PIECE) {
-// 			score[COLOR(piece)] += piece_value[TYPE(piece)];
-// 		}
-// 	}
-
-// 	return score[pos->side_to_move] - score[1 - pos->side_to_move];
+// 	move.from_square = 42;
+// 	move.to_square = 34;
+// 	move.promotion_type = 0;
+// 	int i;
+// 	if (init_pst(&table) == -1)
+// 		return (-1);
+// 	parse_position(&pos, "r3k1nr/7p/1q6/1p6/pPp1p3/b1R5/2K5/8 w kq - 0 36");
+// 	print_position(&pos, stdout);
+// 	printf("Score for this position: %d\n", evaluate(&pos, move, table, total_value)[0]);
 // }
-
-/*int	main(void)
-{
-	int **table;
-	struct position pos;
-	int i;
-	if (init_pst(&table) == -1)
-		return (-1);
-	parse_position(&pos, "rnb2k1r/1ppp2p1/p3pn1p/4N3/3P1P2/1N4P1/P1Q1K2P/R4B1R b - - 0 17");
-	print_position(&pos, stdout);
-	printf("Score for this position: %d\n", evaluate(&pos, table));
-	printf("OLD Score for this position: %d\n", old_evaluate(&pos));
-	for (i = 0; i < 6; i++) {
-		free(table[i]);
-	}
-	free(table);
-}*/
