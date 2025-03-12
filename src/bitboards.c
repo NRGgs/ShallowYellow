@@ -103,41 +103,41 @@ void	init_piece_list(t_board *board)
 	}
 }
 
-int	main(void)
-{
-	t_board board;
-	init_board(&board);
-	init_piece_list(&board);
-	printf("--------------WHITES\n");
-	print_bitboard(board.side[C_WHITE]);
-	printf("KING\n");
-	print_bitboard(board.pieces[C_WHITE][BP_KING]);
-	printf("QUEEN\n");
-	print_bitboard(board.pieces[C_WHITE][BP_QUEEN]);
-	printf("ROOK\n");
-	print_bitboard(board.pieces[C_WHITE][BP_ROOK]);
-	printf("BISHOP\n");
-	print_bitboard(board.pieces[C_WHITE][BP_BISHOP]);
-	printf("KNIGHT\n");
-	print_bitboard(board.pieces[C_WHITE][BP_KNIGHT]);
-	printf("PAWN\n");
-	print_bitboard(board.pieces[C_WHITE][BP_PAWN]);
+// int	main(void)
+// {
+// 	t_board board;
+// 	init_board(&board);
+// 	init_piece_list(&board);
+// 	printf("--------------WHITES\n");
+// 	print_bitboard(board.side[C_WHITE]);
+// 	printf("KING\n");
+// 	print_bitboard(board.pieces[C_WHITE][BP_KING]);
+// 	printf("QUEEN\n");
+// 	print_bitboard(board.pieces[C_WHITE][BP_QUEEN]);
+// 	printf("ROOK\n");
+// 	print_bitboard(board.pieces[C_WHITE][BP_ROOK]);
+// 	printf("BISHOP\n");
+// 	print_bitboard(board.pieces[C_WHITE][BP_BISHOP]);
+// 	printf("KNIGHT\n");
+// 	print_bitboard(board.pieces[C_WHITE][BP_KNIGHT]);
+// 	printf("PAWN\n");
+// 	print_bitboard(board.pieces[C_WHITE][BP_PAWN]);
 
-	printf("--------------BLACKS\n");
-	print_bitboard(board.side[C_BLACK]);
-	printf("KING\n");
-	print_bitboard(board.pieces[C_BLACK][BP_KING]);
-	printf("QUEEN\n");
-	print_bitboard(board.pieces[C_BLACK][BP_QUEEN]);
-	printf("ROOK\n");
-	print_bitboard(board.pieces[C_BLACK][BP_ROOK]);
-	printf("BISHOP\n");
-	print_bitboard(board.pieces[C_BLACK][BP_BISHOP]);
-	printf("KNIGHT\n");
-	print_bitboard(board.pieces[C_BLACK][BP_KNIGHT]);
-	printf("PAWN\n");
-	print_bitboard(board.pieces[C_BLACK][BP_PAWN]);
+// 	printf("--------------BLACKS\n");
+// 	print_bitboard(board.side[C_BLACK]);
+// 	printf("KING\n");
+// 	print_bitboard(board.pieces[C_BLACK][BP_KING]);
+// 	printf("QUEEN\n");
+// 	print_bitboard(board.pieces[C_BLACK][BP_QUEEN]);
+// 	printf("ROOK\n");
+// 	print_bitboard(board.pieces[C_BLACK][BP_ROOK]);
+// 	printf("BISHOP\n");
+// 	print_bitboard(board.pieces[C_BLACK][BP_BISHOP]);
+// 	printf("KNIGHT\n");
+// 	print_bitboard(board.pieces[C_BLACK][BP_KNIGHT]);
+// 	printf("PAWN\n");
+// 	print_bitboard(board.pieces[C_BLACK][BP_PAWN]);
 
-	printf("--------------PIECE_LIST\n");
-	print_piecelist(board.piece_list);
-}
+// 	printf("--------------PIECE_LIST\n");
+// 	print_piecelist(board.piece_list);
+// }

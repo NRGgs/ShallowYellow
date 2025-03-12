@@ -13,8 +13,14 @@ long random_long() {
 
 void fill_zobrist_hashes(zob_hashes *hashes)
 {
-	for (int i = 0; i < 64 * 6 * 2; i++)
-		hashes->piece_hashes[i] = random_long();
+	for (int i = 0; i < 2; i++)
+	{
+		for (int j = 0; j < 6; j++)
+		{
+			for (int k = 0; k < 64; k++)
+				hashes->piece_hashes[i][j][k] = random_long();
+		}
+	}
 	for (int i = 0; i < 16; i++)
 		hashes->castling_hashes[i] = random_long();
 	for (int i = 0; i < 17; i++)
@@ -23,17 +29,43 @@ void fill_zobrist_hashes(zob_hashes *hashes)
 	hashes->side_hashes[1] = random_long();
 }
 
+int nextbit(long *bitboard)
+{
+	if (*bitboard == 0)
+		return (-1);
+	int bit = *bitboard & 1;
+	*bitboard >>= 1;
+	return (bit);
+}
+
 long init_gamestate(zob_hashes *hashes, t_board *board)
 {
-
+	long gskey = 0;
+	t_board nboard = *board;
+	zob_hashes nhashes = *hashes;
+	long *wpieces = board->pieces[C_WHITE];
+	long *bpieces = board->pieces[C_BLACK];
+	for (int i = 0; i < 6; i++)
+	{
+		long whitepiece = wpieces[i];
+		long blackpiece = bpieces[i];
+		while (whitepiece > 0)
+		{
+			int square = nextbit(&whitepiece);
+		}
+	}
 }
+
+void	print_piecelist(int *list);
+void	init_piece_list(t_board *board);
 
 int main() {
 	t_board board;
 	zob_hashes hashes;
 	init_board(&board);
+	init_piece_list(&board);
 	fill_zobrist_hashes(&hashes);
-	for (int i = 0; i < 64 * 6 * 2; i++)
-		printf("%ld\n", hashes.piece_hashes[i]);
+	init_gamestate(&hashes, &board);
+	print_piecelist(board.piece_list);
     return 0;
 }
