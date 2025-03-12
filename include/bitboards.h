@@ -1,8 +1,9 @@
-typedef struct s_bitboards
+typedef struct s_board
 {
 	long	pieces[2][6];	// pieces[COLOUR][PIECES]
 	long	side[2];		// side[COLOUR]
-}	t_bitboards;
+	int		piece_list[64];	// piece_list[SQUARE]
+}	t_board;
 
 const typedef enum e_colour
 {
