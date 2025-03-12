@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "../include/bitboards.h"
 #include "../include/types.h"
 
@@ -10,6 +11,19 @@ void	print_bitboard(long board)
 		{
 			long mask = (long)1 << (63 - (rank * 8) - file);
 			printf("%d ", (board & mask) != 0 ? 1 : 0);
+		}
+		printf("\n");
+	}
+}
+
+void	print_piecelist(int *list)
+{
+	int i = 0;
+	for (int rank = 0; rank < 8; rank++)
+	{
+		for (int file = 7; file >= 0; file--)
+		{
+			printf("%d ", list[i++]);
 		}
 		printf("\n");
 	}
@@ -68,10 +82,32 @@ void	init_board(t_board *board)
 		board->pieces[C_BLACK][BP_PAWN] |= (one << i);
 }
 
+void	init_piece_list(t_board *board)
+{
+	int			piece_type;
+	int			square;
+	const long	one = 1;
+
+	memset(board->piece_list, 0, sizeof(board->piece_list));
+	for (piece_type = 0; piece_type < 6; piece_type++)
+	{
+		for (square = 0; square < 64; square++)
+		{
+			board->piece_list[square] =
+				((board->pieces[C_WHITE][piece_type] & (one << square)) != 0)
+				? piece_type : board->piece_list[square];
+			board->piece_list[square] =
+				((board->pieces[C_BLACK][piece_type] & (one << square)) != 0)
+				? piece_type : board->piece_list[square];
+		}
+	}
+}
+
 int	main(void)
 {
 	t_board board;
 	init_board(&board);
+	init_piece_list(&board);
 	printf("--------------WHITES\n");
 	print_bitboard(board.side[C_WHITE]);
 	printf("KING\n");
@@ -101,4 +137,7 @@ int	main(void)
 	print_bitboard(board.pieces[C_BLACK][BP_KNIGHT]);
 	printf("PAWN\n");
 	print_bitboard(board.pieces[C_BLACK][BP_PAWN]);
+
+	printf("--------------PIECE_LIST\n");
+	print_piecelist(board.piece_list);
 }
