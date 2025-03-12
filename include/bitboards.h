@@ -1,7 +1,7 @@
 typedef struct s_board
 {
-	long	pieces[2][6];	// pieces[COLOUR][PIECES]
-	long	side[2];		// side[COLOUR]
+	unsigned long	pieces[2][6];	// pieces[COLOUR][PIECES]
+	unsigned long	side[2];		// side[COLOUR]
 	int		piece_list[64];	// piece_list[SQUARE]
 }	t_board;
 
@@ -19,5 +19,5 @@ const typedef enum e_bitpiece
 	BP_BISHOP,
 	BP_KNIGHT,
 	BP_PAWN,
-	BP_NONE
+	BP_NONE,
 }	e_bitpiece;

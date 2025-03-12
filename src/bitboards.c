@@ -88,7 +88,8 @@ void	init_piece_list(t_board *board)
 	int			square;
 	const long	one = 1;
 
-	memset(board->piece_list, 0, sizeof(board->piece_list));
+	for (int i = 0; i < 64; i++)
+		board->piece_list[i] = BP_NONE;
 	for (piece_type = 0; piece_type < 6; piece_type++)
 	{
 		for (square = 0; square < 64; square++)
