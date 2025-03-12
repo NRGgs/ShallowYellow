@@ -38,7 +38,7 @@ int nextbit(long *bitboard)
 	return (bit);
 }
 
-long init_gamestate(zob_hashes *hashes, t_board *board)
+long init_gamestate(zob_hashes *hashes, t_board *board, t_gamestate *state)
 {
 	long gskey = 0;
 	t_board nboard = *board;
@@ -52,8 +52,18 @@ long init_gamestate(zob_hashes *hashes, t_board *board)
 		while (whitepiece > 0)
 		{
 			int square = nextbit(&whitepiece);
+			gskey ^= nhashes.piece_hashes[C_WHITE][nboard.piece_list[square]][square];
+		}
+		while (blackpiece > 0)
+		{
+			int square = nextbit(&blackpiece);
+			gskey ^= nhashes.piece_hashes[C_BLACK][nboard.piece_list[square]][square];
 		}
 	}
+	gskey ^= nhashes.castling_hashes[state->castling];
+	gskey ^= nhashes.side_hashes[state->active_color];
+	gskey ^= nhashes.en_passant_hashes[state->active_color];
+	return (gskey);
 }
 
 void	print_piecelist(int *list);
@@ -62,10 +72,11 @@ void	init_piece_list(t_board *board);
 int main() {
 	t_board board;
 	zob_hashes hashes;
+	t_gamestate state;
 	init_board(&board);
 	init_piece_list(&board);
 	fill_zobrist_hashes(&hashes);
-	init_gamestate(&hashes, &board);
+	init_gamestate(&hashes, &board, &state);
 	print_piecelist(board.piece_list);
     return 0;
 }
