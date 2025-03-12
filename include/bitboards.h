@@ -4,6 +4,12 @@ typedef struct s_bitboards
 	long	side[2];		// side[COLOUR]
 }	t_bitboards;
 
+const typedef enum e_colour
+{
+	C_WHITE,
+	C_BLACK,
+}	e_colour;
+
 const typedef enum e_bitpiece
 {
 	BP_KING,
