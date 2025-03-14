@@ -460,7 +460,7 @@ int	get_game_stage(const int *board)
 		if (board[i] != NO_PIECE)
 			count++;
 	}
-	if (count <= 12)
+	if (count <= 8)
 		return (1);
 	return (0);
 }

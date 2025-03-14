@@ -69,5 +69,8 @@ struct search_result minimax(const struct position *pos, int depth, int ***table
 }
 
 struct move search(const struct search_info *info, int ***table) {
-	return minimax(info->pos, 6, table, true, INT_MIN, INT_MAX).move;
+	int depth = 4;
+	if (get_game_stage(info->pos->board))
+		depth = 6;
+	return minimax(info->pos, depth, table, true, INT_MIN, INT_MAX).move;
 }
