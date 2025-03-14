@@ -64,5 +64,8 @@
 #define RELATIVE(rank, color) ((color) == WHITE ? (rank) : (int)7 - (rank))
 
 #define RELATIVESQUARE(square, piece) (SQUARE(FILE(square), RELATIVE(RANK(square), COLOR(piece))))
+#define BB_RELATIVESQUARE(square, color) (SQUARE(FILE(square), RELATIVE(RANK(square), color)))
+
+#define GET_ENPASSANT_SQUARE(color, square) ((color == C_WHITE) ? square % 16 : square % 32 + 8)
 
 #endif

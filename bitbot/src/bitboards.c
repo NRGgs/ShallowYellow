@@ -18,12 +18,11 @@ void	print_bitboard(long board)
 
 void	print_piecelist(int *list)
 {
-	int i = 0;
 	for (int rank = 0; rank < 8; rank++)
 	{
 		for (int file = 7; file >= 0; file--)
 		{
-			printf("%d ", list[i++]);
+			printf("%d ", list[63 - (rank * 8) - file]);
 		}
 		printf("\n");
 	}
@@ -76,10 +75,25 @@ void	init_board(t_board *board)
 	board->pieces[C_WHITE][BP_PAWN] = 0;
 	for (i = 8; i < 16; i++)
 		board->pieces[C_WHITE][BP_PAWN] |= (one << i);
+		
 
 	board->pieces[C_BLACK][BP_PAWN] = 0;
 	for (i = 55; i > 47; i--)
 		board->pieces[C_BLACK][BP_PAWN] |= (one << i);
+	
+	board->state.active_color = 0;
+	board->state.castling = 0;
+	board->state.completed_move.captured_piece = BP_NONE;
+	board->state.completed_move.to_square = 0;
+	board->state.completed_move.from_square = 0;
+	board->state.completed_move.promotion_type = BP_NONE;
+	board->state.en_passant = -1;
+	board->state.fullmove_number = 0;
+	board->state.half_move_clock = 0;
+	board->state.ps_value[0] = 0;
+	board->state.ps_value[1] = 0;
+	board->state.score_value = 0;
+	board->history.current = 0;
 }
 
 void	init_piece_list(t_board *board)

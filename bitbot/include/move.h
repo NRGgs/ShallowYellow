@@ -2,6 +2,7 @@
 #define MOVE_H
 
 #include "position.h"
+#include "bitboards.h"
 
 #define MASK_BOOL = 1
 #define MASK_PIECE = 7
@@ -30,25 +31,7 @@
 /* instead, saving other parts of the code from having to redo the lookups.  */
 /*                                                                           */
 /* https://www.chessprogramming.org/Encoding_Moves                           */
-struct move {
-	/* the square the piece is moving from.                                  */
-	int from_square;
 
-	/* the square the piece is moving to.                                    */
-	int to_square;
-
-	/* the type of piece that is being promoted to, if any.                  */
-	int promotion_type;
-	/*
-	1 bit  for capture (bool)
-	1 bit  for check (bool)
-	3 bits for captured piece type
-	3 bits for piece type
-	8 bits for to_square
-	8 bits for from_square
-	3 bits for promotion type
-	*/
-};
 
 /* create a move from the given parameters.                                  */
 struct move make_move(int from_square, int to_square, int promotion_type);

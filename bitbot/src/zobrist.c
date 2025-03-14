@@ -1,6 +1,6 @@
 #include <stdlib.h>
-#include "../include/zobrist.h"
 #include "../include/bitboards.h"
+#include "../include/zobrist.h"
 #include "../include/gamestate.h"
 
 void	init_board(t_board *board);
@@ -22,8 +22,6 @@ void fill_zobrist_hashes(zob_hashes *hashes)
 			for (int k = 0; k < 64; k++)
 			{
 				hashes->piece_hashes[i][j][k] = random_long();
-				if (last == hashes->piece_hashes[i][j][k])
-					printf("Duplicate hash found %ld\n", last);
 				last = hashes->piece_hashes[i][j][k];
 			}
 		}
@@ -45,7 +43,7 @@ int nextbit(unsigned long *bitboard)
 	return (bit);
 }
 
-unsigned long get_starting_game_hash(zob_hashes *hashes, t_board *board, t_gamestate *state)
+unsigned long get_starting_game_hash(zob_hashes *hashes, t_board *board)
 {
 	unsigned long gskey = 0;
 	t_board nboard = *board;
@@ -73,24 +71,24 @@ unsigned long get_starting_game_hash(zob_hashes *hashes, t_board *board, t_games
 			square++;
 		}
 	}
-	gskey ^= nhashes.castling_hashes[state->castling];
-	gskey ^= nhashes.side_hashes[state->active_color];
-	gskey ^= nhashes.en_passant_hashes[state->active_color];
+	gskey ^= nhashes.castling_hashes[board->state.castling];
+	gskey ^= nhashes.side_hashes[board->state.active_color];
+	gskey ^= nhashes.en_passant_hashes[board->state.active_color];
 	return (gskey);
 }
 
 void	print_piecelist(int *list);
 void	init_piece_list(t_board *board);
 
-int main() {
-	t_board board;
-	zob_hashes hashes;
-	t_gamestate state;
-	init_board(&board);
-	init_piece_list(&board);
-	fill_zobrist_hashes(&hashes);
-	print_piecelist(board.piece_list);
-	state.zobrist_key = get_starting_game_hash(&hashes, &board, &state);
-	printf("%ld\n", state.zobrist_key);
-    return 0;
-}
+// int main() {
+// 	t_board board;
+// 	zob_hashes hashes;
+// 	t_gamestate state;
+// 	init_board(&board);
+// 	init_piece_list(&board);
+// 	fill_zobrist_hashes(&hashes);
+// 	print_piecelist(board.piece_list);
+// 	state.zobrist_key = get_starting_game_hash(&hashes, &board, &state);
+// 	printf("%ld\n", state.zobrist_key);
+//     return 0;
+// }
